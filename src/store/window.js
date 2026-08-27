@@ -10,6 +10,8 @@ const useWindowStore = create(
         openWindow: (windowKey, data = null) => set((state) => {
             const win = state.windows[windowKey];
             win.isOpen = true;
+            win.isMinimized = false;
+            win.isMaximized = false;
             win.zIndex = state.nextZIndex;
             win.data = data ?? win.data;
             state.nextZIndex++;
@@ -20,8 +22,29 @@ const useWindowStore = create(
             // Defensive: if the windowKey is invalid, do nothing.
             if (!win) return;
             win.isOpen = false;
+            win.isMinimized = false;
+            win.isMaximized = false;
             win.zIndex = INITIAL_Z_INDEX;
             win.data = null;
+        }),
+
+        toggleMinimize: (windowKey) => set((state) => {
+            const win = state.windows[windowKey];
+            if (!win) return;
+            if (win.isMaximized) {
+                win.isMaximized = false;
+            } else {
+                win.isMinimized = !win.isMinimized;
+            }
+        }),
+
+        toggleMaximize: (windowKey) => set((state) => {
+            const win = state.windows[windowKey];
+            if (!win) return;
+            win.isMaximized = !win.isMaximized;
+            if (win.isMaximized) {
+                win.zIndex = state.nextZIndex++;
+            }
         }),
 
         focusWindow: (windowKey) => set((state) => {
